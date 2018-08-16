@@ -1,0 +1,27 @@
+{
+  "name": "kotaku-article-scraper",
+  "version": "1.0.0",
+  "description": "scrapes articles from kotaku and allows users to save the articles and write notes about saved articles",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hankzimmer7/Kotaku-Article-Scraper.git"
+  },
+  "author": "Hank Zimmer",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hankzimmer7/Kotaku-Article-Scraper/issues"
+  },
+  "homepage": "https://github.com/hankzimmer7/Kotaku-Article-Scraper#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.3",
+    "express-handlebars": "^3.0.0",
+    "mongoose": "^5.2.8",
+    "request": "^2.88.0"
+  }
+}
