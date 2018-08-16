@@ -9,7 +9,7 @@ var request = require("request");
 // Require all models
 var db = require("./models");
 
-var PORT = 1337;
+var PORT = process.env.PORT || 1337;
 
 // Initialize Express
 var app = express();
