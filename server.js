@@ -24,7 +24,9 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/kotakuArticles");
+// mongoose.connect("mongodb://localhost/kotakuArticles");
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/kotakuArticles";
+mongoose.connect(MONGODB_URI);
 
 // Routes
 
