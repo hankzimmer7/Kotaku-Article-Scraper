@@ -26,8 +26,7 @@ h1 {
 }
 
 .btn {
-  position: absolute;
-  right:20px;
+  margin-left: 1rem;
 }
 
 #notes {
@@ -49,4 +48,32 @@ input {
 textarea {
   height: 200px;
   font-size: 18px;
+}
+
+/* Large devices (desktops, less than 1200px) */
+@media screen and (max-width: 1199.98px) {
+
+
+}
+
+/* Medium devices (tablets, less than 992px) */
+@media screen and (max-width: 991.98px) {
+  .btn {
+    margin-left: 0;
+    margin-top: 1rem;
+  }
+}
+
+/* Small devices (landscape phones, less than 768px) */
+@media screen and (max-width: 767.98px) {
+
+}
+
+/* Extra small devices (portrait phones, less than 576px) */
+@media screen and (max-width: 575.98px) {
+
+}
+/* Tiny devices */
+@media screen and (max-width: 420px) {
+
 }

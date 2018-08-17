@@ -45,6 +45,41 @@ $.getJSON("/articles", function (data) {
   }
 });
 
+$(document).on("click", "#scrape-button", function () {
+  console.log("Clicked the scrape button");
+
+  $.ajax({
+      method: "GET",
+      url: "/scrape"
+    })
+    .then(function (data) {
+      console.log("Scraped Kotaku for new articles");
+      console.log("data: " + data);
+      alert("Scraping Kotaku for new articles");
+      location.reload();
+      alert("Scraped new articles!");
+
+    })
+
+});
+
+$(document).on("click", "#clear-button", function () {
+  console.log("Clicked the clear button");
+
+  // Run a POST request to change the note, using what's entered in the inputs
+  $.ajax({
+      method: "DELETE",
+      url: "/articles"
+    })
+    // With that done
+    .then(function (data) {
+
+      console.log("Cleared the unsaved articles");
+      // Log the response
+      console.log("data: " + data);
+    });
+});
+
 $(document).on("click", ".save-button", function () {
   console.log("clicked save for article " + $(this).attr("data-id"));
 
