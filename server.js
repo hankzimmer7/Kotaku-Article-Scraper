@@ -48,7 +48,7 @@ app.get("/scrape", function (req, res) {
 
       //This if statement ensures that only articles will be scraped and not ads, as ads don't follow the same structure
       if ($(element).find("h1").find("a").text()) {
-        
+
         // Save the text of the element in a "title" variable
         var title = $(element).find("h1").children().text();
 
@@ -62,6 +62,7 @@ app.get("/scrape", function (req, res) {
         result.title = title;
         result.link = link;
         result.image = image;
+        result.saved = false;
 
         // Create a new Article using the `result` object built from scraping
         db.Article.create(result)
@@ -93,8 +94,24 @@ app.get("/articles", function (req, res) {
     });
 });
 
+//Route for saving an article
+app.post("/articles/:id", function (req, res) {
+
+  db.Article.update({
+      _id: req.params.id
+    }, {
+      $set: {
+        saved: true
+      }
+    }, (function (dbArticle) {
+      // If the Article was updated successfully, send it back to the client
+      // res.json(dbArticle);
+    })
+  );
+});
+
 // Route for grabbing a specific Article by id, populate it with its note
-app.get("/articles/:id", function (req, res) {
+app.get("/articles/:id/notes", function (req, res) {
 
   db.Article.findOne({
       _id: req.params.id
@@ -112,7 +129,7 @@ app.get("/articles/:id", function (req, res) {
 });
 
 // Route for saving/updating an Article's associated Note
-app.post("/articles/:id", function (req, res) {
+app.post("/articles/:id/notes", function (req, res) {
   // TODO
   // ====
   // save the new note that gets posted to the Notes collection

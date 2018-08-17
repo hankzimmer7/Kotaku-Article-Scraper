@@ -17,6 +17,12 @@ var ArticleSchema = new Schema({
     type: String,
     required: true
   },
+  //Saved is a property which stores whether or not the user has saved the article
+  //Saved articles are able to have notes and are not deleted when the user clears the currently scraped articles
+  saved: {
+    type:Boolean,
+    required:true
+  },
   // `note` is an object that stores a Note id
   // The ref property links the ObjectId to the Note model
   // This allows populating the Article with an associated Note

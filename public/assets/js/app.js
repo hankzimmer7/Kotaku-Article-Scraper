@@ -1,39 +1,123 @@
-// Grab the articles as a json
+// Grab the scraped articles as json
 $.getJSON("/articles", function (data) {
   // For each one
   for (var i = 0; i < data.length; i++) {
-    // Append the article to the page
+    console.log("data[i].title " + data[i].title)
+    console.log("data[i].saved: " + data[i].saved)
+    // Only show the articles that haven't been saved
+    if (!data[i].saved) {
 
-    var articleElement = $("<div>");
-    articleElement.addClass("card");
-    articleElement.attr("data-id", data[i]._id);
+      //Creat the articles elements
+      var articleElement = $("<div>");
+      articleElement.addClass("card");
+      articleElement.attr("data-id", data[i]._id);
 
-    var cardHeader = $("<div>");
-    cardHeader.addClass("card-header");
+      var cardHeader = $("<div>");
+      cardHeader.addClass("card-header");
 
-    var heading = $("<h3>");
+      var heading = $("<h3>");
 
-    var link = $("<a>");
-    link.addClass("article-link");
-    link.attr("target", "_blank");
-    link.attr("href", data[i].link);
-    link.text(data[i].title);
+      var link = $("<a>");
+      link.addClass("article-link");
+      link.attr("target", "_blank");
+      link.attr("href", data[i].link);
+      link.text(data[i].title);
 
-    var button = $("<button>");
-    button.addClass("btn btn-success save-button");
-    button.text("Save Article");
+      var button = $("<button>");
+      button.addClass("btn btn-success save-button");
+      button.attr("data-id", data[i]._id);
+      button.text("Save Article");
 
-    var image = $("<img>");
-    image.attr("src",data[i].image);
-    image.addClass("img-fluid");
+      var image = $("<img>");
+      image.attr("src", data[i].image);
+      image.addClass("img-fluid");
 
-    heading.append(link);
-    heading.append(button);
-    cardHeader.append(heading);
-    articleElement.append(cardHeader);
-    articleElement.append(image);
-    $("#articles").append(articleElement);
+      //Append the pieces together to create the article element
+      heading.append(link);
+      heading.append(button);
+      cardHeader.append(heading);
+      articleElement.append(cardHeader);
+      articleElement.append(image);
+
+      // Append the article to the page
+      $("#articles").append(articleElement);
+    };
   }
+});
+
+$(document).on("click", ".save-button", function () {
+  console.log("clicked save for article " + $(this).attr("data-id"));
+
+  // Grab the id associated with the article from the save button
+  var thisId = $(this).attr("data-id");
+
+  // Run a POST request to change the note, using what's entered in the inputs
+  $.ajax({
+      method: "POST",
+      url: "/articles/" + thisId,
+      data: {
+        // Value taken from title input
+        saved: true
+      }
+    })
+    // With that done
+    .then(function (data) {
+      // Log the response
+      console.log(data);
+      location.reload(true);
+    });
+});
+
+$(document).on("click", "#saved-articles", function () {
+
+  // Grab the saved articles as json
+  $.getJSON("/articles", function (data) {
+
+    $("#articles").empty();
+
+    // For each one
+    for (var i = 0; i < data.length; i++) {
+
+      // Only show the articles that have been saved
+      if (data[i].saved) {
+
+        //Creat the articles elements
+        var articleElement = $("<div>");
+        articleElement.addClass("card");
+        articleElement.attr("data-id", data[i]._id);
+
+        var cardHeader = $("<div>");
+        cardHeader.addClass("card-header");
+
+        var heading = $("<h3>");
+
+        var link = $("<a>");
+        link.addClass("article-link");
+        link.attr("target", "_blank");
+        link.attr("href", data[i].link);
+        link.text(data[i].title);
+
+        var button = $("<button>");
+        button.addClass("btn btn-success note-button");
+        button.attr("data-id", data[i]._id);
+        button.text("Notes");
+
+        var image = $("<img>");
+        image.attr("src", data[i].image);
+        image.addClass("img-fluid");
+
+        //Append the pieces together to create the article element
+        heading.append(link);
+        heading.append(button);
+        cardHeader.append(heading);
+        articleElement.append(cardHeader);
+        articleElement.append(image);
+
+        // Append the article to the page
+        $("#articles").append(articleElement);
+      };
+    }
+  });
 });
 
 // Whenever someone clicks a p tag
