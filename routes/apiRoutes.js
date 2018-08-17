@@ -68,15 +68,13 @@ apiRouter.get("/articles", function (req, res) {
     });
 });
 
-//Route for saving an article
+//Route for updating an article. Used for marking as saved or unsaved
 apiRouter.post("/articles/:id", function (req, res) {
 
   db.Article.update({
     _id: req.params.id
   }, {
-    $set: {
-      saved: true
-    }
+    $set: req.body
   }, (function (dbArticle) {
     // If the Article was updated successfully, send it back to the client
     res.json(dbArticle);
@@ -93,6 +91,7 @@ apiRouter.delete("/articles", function (req, res) {
     if (err) {
       console.log(err);
     }
+    return res.send("Successfully cleared unsaved articles");
   });
 });
 

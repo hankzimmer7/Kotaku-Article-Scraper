@@ -53,33 +53,28 @@ $(document).on("click", "#scrape-button", function () {
       url: "/scrape"
     })
     .then(function (data) {
-      console.log("Scraped Kotaku for new articles");
-      console.log("data: " + data);
-      alert("Scraping Kotaku for new articles");
       location.reload();
-      alert("Scraped new articles!");
-
+      console.log(data);
     })
-
 });
 
+//When the user clicks on the "Clear Scraped Articles" button, remove the unsaved articles from the database
 $(document).on("click", "#clear-button", function () {
-  console.log("Clicked the clear button");
-
-  // Run a POST request to change the note, using what's entered in the inputs
+  // Run a DELETE request to delete the unsaved articles
   $.ajax({
       method: "DELETE",
-      url: "/articles"
+      url: "/articles",
+      data: {}
     })
-    // With that done
-    .then(function (data) {
-
-      console.log("Cleared the unsaved articles");
-      // Log the response
-      console.log("data: " + data);
+    // Once the delete request is complere
+    .then(function (response) {
+      //Reload the page
+      location.reload();
+      console.log(response);
     });
 });
 
+//When the user clicks on the "Save Button" for an article, save the article
 $(document).on("click", ".save-button", function () {
   console.log("clicked save for article " + $(this).attr("data-id"));
 
@@ -103,6 +98,31 @@ $(document).on("click", ".save-button", function () {
     });
 });
 
+//When the user clicks on the "Unsave Button" for an article, unsave the article
+$(document).on("click", ".unsave-button", function () {
+  console.log("clicked unsave for article " + $(this).attr("data-id"));
+
+  // Grab the id associated with the article from the save button
+  var thisId = $(this).attr("data-id");
+
+  // Run a POST request to change the note, using what's entered in the inputs
+  $.ajax({
+      method: "POST",
+      url: "/articles/" + thisId,
+      data: {
+        // Value taken from title input
+        saved: false
+      }
+    })
+    // With that done
+    .then(function (data) {
+      // Log the response
+      console.log(data);
+      location.reload(true);
+    });
+});
+
+//When the user clicks on "Saved Articles", show the saved articles
 $(document).on("click", "#saved-articles", function () {
 
   // Grab the saved articles as json
@@ -132,10 +152,15 @@ $(document).on("click", "#saved-articles", function () {
         link.attr("href", data[i].link);
         link.text(data[i].title);
 
-        var button = $("<button>");
-        button.addClass("btn btn-success note-button");
-        button.attr("data-id", data[i]._id);
-        button.text("Notes");
+        var noteButton = $("<button>");
+        noteButton.addClass("btn btn-primary note-button");
+        noteButton.attr("data-id", data[i]._id);
+        noteButton.text("Notes");
+
+        var unsaveButton = $("<button>");
+        unsaveButton.addClass("btn btn-danger unsave-button");
+        unsaveButton.attr("data-id", data[i]._id);
+        unsaveButton.text("Unsave");
 
         var image = $("<img>");
         image.attr("src", data[i].image);
@@ -143,7 +168,8 @@ $(document).on("click", "#saved-articles", function () {
 
         //Append the pieces together to create the article element
         heading.append(link);
-        heading.append(button);
+        heading.append(noteButton);
+        heading.append(unsaveButton);
         cardHeader.append(heading);
         articleElement.append(cardHeader);
         articleElement.append(image);
