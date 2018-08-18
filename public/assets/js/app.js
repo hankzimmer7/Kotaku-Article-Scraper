@@ -15,7 +15,14 @@ $.getJSON("/articles", function (data) {
       var cardHeader = $("<div>");
       cardHeader.addClass("card-header");
 
-      var heading = $("<h3>");
+      var headerRow = $("<div>");
+      headerRow.addClass("row");
+
+      const headingColumn = $("<div>")
+      headingColumn.addClass("col-md-9");
+
+      var heading = $("<h2>");
+      heading.addClass("article-title");
 
       var link = $("<a>");
       link.addClass("article-link");
@@ -23,19 +30,26 @@ $.getJSON("/articles", function (data) {
       link.attr("href", data[i].link);
       link.text(data[i].title);
 
+      heading.append(link);
+      headingColumn.append(heading);
+
+      const buttonColumn = $("<div>");
+      buttonColumn.addClass("col-md-3");
+
       var button = $("<button>");
-      button.addClass("btn btn-success save-button");
+      button.addClass("btn btn-success save-button card-button");
       button.attr("data-id", data[i]._id);
       button.text("Save Article");
 
+      buttonColumn.append(button);
+      headerRow.append(headingColumn);
+      headerRow.append(buttonColumn);
+      cardHeader.append(headerRow);
+
       var image = $("<img>");
       image.attr("src", data[i].image);
-      image.addClass("img-fluid");
+      image.addClass("card-img-bottom");
 
-      //Append the pieces together to create the article element
-      heading.append(link);
-      heading.append(button);
-      cardHeader.append(heading);
       articleElement.append(cardHeader);
       articleElement.append(image);
 
@@ -144,7 +158,14 @@ $(document).on("click", "#saved-articles", function () {
         var cardHeader = $("<div>");
         cardHeader.addClass("card-header");
 
-        var heading = $("<h3>");
+        var headerRow = $("<div>");
+        headerRow.addClass("row");
+
+        const headingColumn = $("<div>")
+        headingColumn.addClass("col-lg-9");
+
+        var heading = $("<h2>");
+        heading.addClass("article-title");
 
         var link = $("<a>");
         link.addClass("article-link");
@@ -152,25 +173,33 @@ $(document).on("click", "#saved-articles", function () {
         link.attr("href", data[i].link);
         link.text(data[i].title);
 
+        heading.append(link);
+        headingColumn.append(heading);
+
+        const buttonColumn = $("<div>");
+        buttonColumn.addClass("col-lg-3");
+
         var noteButton = $("<button>");
-        noteButton.addClass("btn btn-primary notes-button");
+        noteButton.addClass("btn btn-primary notes-button card-button");
         noteButton.attr("data-id", data[i]._id);
         noteButton.text("Notes");
 
         var unsaveButton = $("<button>");
-        unsaveButton.addClass("btn btn-danger unsave-button");
+        unsaveButton.addClass("btn btn-danger unsave-button card-button");
         unsaveButton.attr("data-id", data[i]._id);
         unsaveButton.text("Unsave");
 
+        buttonColumn.append(noteButton);
+        buttonColumn.append(unsaveButton);
+        headerRow.append(headingColumn);
+        headerRow.append(buttonColumn);
+        cardHeader.append(headerRow);
+  
         var image = $("<img>");
         image.attr("src", data[i].image);
-        image.addClass("img-fluid");
+        image.addClass("card-img-bottom");
 
         //Append the pieces together to create the article element
-        heading.append(link);
-        heading.append(noteButton);
-        heading.append(unsaveButton);
-        cardHeader.append(heading);
         articleElement.append(cardHeader);
         articleElement.append(image);
 
@@ -191,30 +220,60 @@ $(document).on("click", ".notes-button", function () {
   var thisId = $(this).attr("data-id");
 
   console.log("thisId: " + thisId);
-    // Now make an ajax call for the Article
-    $.ajax({
+  // Now make an ajax call for the Article
+  $.ajax({
       method: "GET",
       url: "/articles/" + thisId + "/notes"
     })
     // With that done, add the note information to the page
     .then(function (data) {
       console.log(data);
-      // The title of the article
-      $("#notes").append("<h2>" + data.title + "</h2>");
-      // An input to enter a new title
-      $("#notes").append("<input id='titleinput' name='title' >");
-      // A textarea to add a new note body
-      $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
-      // A button to submit a new note, with the id of the article saved to it
-      $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
 
-      // If there's a note in the article
+      const notesHeading = $("<h3>");
+      notesHeading.text("Notes for " + data.title);
+
+      $("#notes").append(notesHeading);
+
       if (data.note) {
-        // Place the title of the note in the title input
-        $("#titleinput").val(data.note.title);
-        // Place the body of the note in the body textarea
-        $("#bodyinput").val(data.note.body);
+
+        const noteList = $("<ul>");
+        noteList.addClass("list-group");
+
+        const noteElement = $("<li>");
+        noteElement.addClass("list-group-item");
+        noteElement.text(data.note.bodyText);
+
+        noteList.append(noteElement);
+        $("#notes").append(noteList);
       }
+
+      // An input to enter a new note
+
+      const form = $("<form>");
+
+      const formGroup = $("<div>");
+      formGroup.addClass("form-group");
+
+      const input = $("<input>");
+      input.addClass("form-control");
+      input.attr("id", "text-input");
+      input.attr("placeholder", "Type a new note here");
+
+      const button = $("<button>");
+      button.addClass("btn btn-primary");
+      button.attr("id", "savenote");
+      button.attr("data-id", data._id);
+      button.attr("type", "submit");
+      button.text("Save Note");
+
+      formGroup.append(input);
+      form.append(formGroup);
+      form.append(button);
+      $("#notes").append(form);
+
+      // $("#notes").append("<input id='text-input'>");
+      // // A button to submit a new note, with the id of the article saved to it
+      // $("#notes").append("<button class='btn btn-primary' data-id='" + data._id + "' id='savenote'>Save Note</button>");
     });
 });
 
@@ -232,66 +291,32 @@ window.onclick = function (event) {
   }
 }
 
-// Whenever someone clicks a p tag
-$(document).on("click", "p", function () {
-  // Empty the notes from the note section
-  $("#notes").empty();
-  // Save the id from the p tag
-  var thisId = $(this).attr("data-id");
-
-
-  // Now make an ajax call for the Article
-  $.ajax({
-      method: "GET",
-      url: "/articles/" + thisId
-    })
-    // With that done, add the note information to the page
-    .then(function (data) {
-      console.log(data);
-      // The title of the article
-      $("#notes").append("<h2>" + data.title + "</h2>");
-      // An input to enter a new title
-      $("#notes").append("<input id='titleinput' name='title' >");
-      // A textarea to add a new note body
-      $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
-      // A button to submit a new note, with the id of the article saved to it
-      $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
-
-      // If there's a note in the article
-      if (data.note) {
-        // Place the title of the note in the title input
-        $("#titleinput").val(data.note.title);
-        // Place the body of the note in the body textarea
-        $("#bodyinput").val(data.note.body);
-      }
-    });
-});
-
 // When you click the savenote button
-$(document).on("click", "#savenote", function () {
+$(document).on("click", "#savenote", function (event) {
+
+  event.preventDefault();
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
 
   // Run a POST request to change the note, using what's entered in the inputs
   $.ajax({
       method: "POST",
-      url: "/articles/" + thisId,
+      url: "/articles/" + thisId + "/notes",
       data: {
-        // Value taken from title input
-        title: $("#titleinput").val(),
-        // Value taken from note textarea
-        body: $("#bodyinput").val()
+        // Value taken from text input
+        bodyText: $("#text-input").val(),
       }
     })
     // With that done
     .then(function (data) {
       // Log the response
       console.log(data);
-      // Empty the notes section
-      $("#notes").empty();
+
+      //Hide the notes modal
+      const modal = document.getElementById("notes-modal");
+      modal.style.display = "none";
     });
 
   // Also, remove the values entered in the input and textarea for note entry
-  $("#titleinput").val("");
-  $("#bodyinput").val("");
+  $("#text-input").val("");
 });
