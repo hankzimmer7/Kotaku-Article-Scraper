@@ -38,20 +38,26 @@ apiRouter.get("/scrape", function (req, res) {
         result.image = image;
         result.saved = false;
 
-        // Create a new Article using the `result` object built from scraping
-        db.Article.create(result)
-          .then(function (dbArticle) {
-            // View the added result in the console
-            console.log(dbArticle);
-          })
-          .catch(function (err) {
-            // If an error occurred, send it to the client
-            return res.json(err);
-          });
+        //Search to see if this article is already in the database
+        db.Article.find({
+          title: title
+        }).then(function (dbArticle) {
+          //If the article isn't already in the database
+          if (dbArticle.length === 0) {
+            // Create a new Article using the `result` object built from scraping
+            db.Article.create(result)
+              .then(function (dbArticle) {
+                // View the added result in the console
+                console.log(dbArticle);
+              })
+              .catch(function (err) {
+                // If an error occurred, send it to the client
+                return res.json(err);
+              });
+          }
+        })
       };
     });
-    // If we were able to successfully scrape and save an Article, send a message to the client
-    res.send("Scrape Complete");
   });
 });
 
@@ -154,15 +160,15 @@ apiRouter.delete("/articles/:article/notes/:note", function (req, res) {
     .then(function (dbArticle) {
       // If the Article was updated successfully, send it back to the client
       db.Article.update({
-        _id: req.params.article
-      }, {
-        $pullAll: {
-          notes: [req.params.note]
-        }
-      })
-      .then(function(response) {
-        res.json(response);
-      })
+          _id: req.params.article
+        }, {
+          $pullAll: {
+            notes: [req.params.note]
+          }
+        })
+        .then(function (response) {
+          res.json(response);
+        })
     })
     .catch(function (err) {
       // If an error occurs, send it back to the client
