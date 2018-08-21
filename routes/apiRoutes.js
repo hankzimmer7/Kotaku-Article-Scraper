@@ -95,14 +95,14 @@ apiRouter.delete("/articles", function (req, res) {
   });
 });
 
-// Route for grabbing a specific Article by id, populate it with its note
+// Route for grabbing a specific Article by id, populate it with its notes
 apiRouter.get("/articles/:id/notes", function (req, res) {
 
   db.Article.findOne({
       _id: req.params.id
     })
     // Specify that we want to populate the retrieved articles with any associated notes
-    .populate("note")
+    .populate("notes")
     .then(function (dbArticle) {
       // If any Libraries are found, send them to the client with any associated Books
       res.send(dbArticle);
@@ -117,7 +117,7 @@ apiRouter.get("/articles/:id/notes", function (req, res) {
 apiRouter.post("/articles/:id/notes", function (req, res) {
   // save the new note that gets posted to the Notes collection
   // then find an article from the req.params.id
-  // and update it's "note" property with the _id of the new note
+  // and update its "notes" property with the _id of the new note
   // Create a new Note in the db
   db.Note.create(req.body)
     .then(function (dbNote) {
@@ -125,7 +125,9 @@ apiRouter.post("/articles/:id/notes", function (req, res) {
       return db.Article.findOneAndUpdate({
         _id: req.params.id
       }, {
-        note: dbNote._id
+        $push: {
+          notes: dbNote._id
+        }
       }, {
         new: true
       });
@@ -133,6 +135,34 @@ apiRouter.post("/articles/:id/notes", function (req, res) {
     .then(function (dbArticle) {
       // If the Article was updated successfully, send it back to the client
       res.json(dbArticle);
+    })
+    .catch(function (err) {
+      // If an error occurs, send it back to the client
+      res.json(err);
+    });
+});
+
+// Route for saving/updating an Article's associated Note
+apiRouter.delete("/articles/:article/notes/:note", function (req, res) {
+  // save the new note that gets posted to the Notes collection
+  // then find an article from the req.params.id
+  // and update its "notes" property with the _id of the new note
+  // Create a new Note in the db
+  db.Note.deleteOne({
+      _id: req.params.note
+    })
+    .then(function (dbArticle) {
+      // If the Article was updated successfully, send it back to the client
+      db.Article.update({
+        _id: req.params.article
+      }, {
+        $pullAll: {
+          notes: [req.params.note]
+        }
+      })
+      .then(function(response) {
+        res.json(response);
+      })
     })
     .catch(function (err) {
       // If an error occurs, send it back to the client
